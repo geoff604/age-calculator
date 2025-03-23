@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #ageResults {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 5px solid #4CAF50;
+            margin-top: 20px;
+        }
+        
+        .dialog {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .dialog-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .dialog-title {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        input[type="date"] {
+            padding: 10px;
+            width: calc(100% - 12px);
+            margin-bottom: 20px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .menu {
+            text-align: right;
+        }
+        
+        .menu button {
+            background: none;
+            border: none;
+            color: #4CAF50;
+            cursor: pointer;
+            margin: 0;
+            padding: 5px;
+            font-size: 14px;
+            display: inline;
+        }
+        
+        .menu button:hover {
+            text-decoration: underline;
+            background: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="menu">
+            <button id="aboutButton">About</button>
+        </div>
+        
+        <h1>Age Calculator</h1>
+        
+        <button id="selectBirthdate">Select Date of Birth</button>
+        
+        <div id="ageResults"></div>
+    </div>
+    
+    <!-- Date Picker Dialog -->
+    <div id="pickerDialog" class="dialog">
+        <div class="dialog-content">
+            <span class="close">&times;</span>
+            <h2 class="dialog-title">Select Date of Birth</h2>
+            <input type="date" id="datePicker">
+            <button id="setDate">Set</button>
+        </div>
+    </div>
+    
+    <!-- About Dialog -->
+    <div id="aboutDialog" class="dialog">
+        <div class="dialog-content">
+            <span class="close">&times;</span>
+            <h2 class="dialog-title">About this App</h2>
+            <div id="textAbout">
+                <p>Created by <b>Geoff Peters</b>, a software developer and videographer in Vancouver BC Canada. 
+                To watch some of his videos, please visit: <b><a href='http://geoffmobile.com' target="_blank">www.geoffmobile.com</a></b></p>
+            </div>
+            <button id="closeAbout">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const selectBirthdate = document.getElementById('selectBirthdate');
+        const ageResults = document.getElementById('ageResults');
+        const pickerDialog = document.getElementById('pickerDialog');
+        const aboutDialog = document.getElementById('aboutDialog');
+        const datePicker = document.getElementById('datePicker');
+        const setDate = document.getElementById('setDate');
+        const aboutButton = document.getElementById('aboutButton');
+        const closeAbout = document.getElementById('closeAbout');
+        
+        // Set default date
+        const today = new Date();
+        const defaultDate = new Date(1986, 2, 10);
+        // Format the date for the input element
+        datePicker.value = defaultDate.toISOString().split('T')[0];
+        
+        // Variables for age calculation
+        let ageDays, ageWeeks, ageMonth, ageYears, ageRemainder;
+        let roundDays, roundWeeks, roundMonth, roundYears, roundRemainder;
+        
+        // Calculate age function
+        function calculateAge(birthDate, currentDate) {
+            ageDays = 0.0;
+            ageWeeks = 0.0;
+            ageMonth = 0.0;
+            ageYears = 0.0;
+            ageRemainder = 0.0;
+            
+            const milliSecondDiff = currentDate.getTime() - birthDate.getTime();
+            if (milliSecondDiff < 0) {
+                return false;
+            }
+            
+            ageDays = milliSecondDiff / 86400000.0;
+            ageWeeks = ageDays / 7.0;
+            ageMonth = ageDays / 30.4375;
+            ageYears = ageDays / 365.24;
+            roundYears = Math.floor(ageYears);
+            ageRemainder = (ageDays - roundYears * 365.24) / 30.4375;
+            
+            roundDays = Math.round(ageDays * 10) / 10.0;
+            roundWeeks = Math.round(ageWeeks * 10) / 10.0;
+            roundMonth = Math.round(ageMonth * 10) / 10.0;
+            roundRemainder = Math.round(ageRemainder * 10) / 10.0;
+            
+            return true;
+        }
+        
+        // Format double with specified decimal places
+        function formatDouble(value, decimalPlaces) {
+            return value.toFixed(decimalPlaces);
+        }
+        
+        // Show date picker dialog
+        selectBirthdate.addEventListener('click', () => {
+            pickerDialog.style.display = 'block';
+        });
+        
+        // Set date and calculate age
+        setDate.addEventListener('click', () => {
+            // Get the date string from the input and create a proper Date object
+            const dateString = datePicker.value; // Format: YYYY-MM-DD
+            const [year, month, day] = dateString.split('-').map(num => parseInt(num, 10));
+            
+            // Create date with correct values (month is 0-indexed in JavaScript)
+            const userDate = new Date(year, month - 1, day);
+            const now = new Date();
+            
+            const ageOk = calculateAge(userDate, now);
+            
+            if (!ageOk) {
+                alert("Please choose a date in the past.");
+                return;
+            }
+            
+            // Format the date properly using the Date object's methods
+            const formattedDate = userDate.toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+            
+            const monthsToNextBirthday = 12 - roundRemainder;
+            
+            let presentMessage;
+            if (monthsToNextBirthday < 6) {
+                presentMessage = "Better start thinking of a present to give them.";
+            } else {
+                presentMessage = "You have lots of time to think of a suitable gift.";
+            }
+            
+            ageResults.innerHTML = `
+                <p>Date of Birth: ${formattedDate}</p>
+                <p>Age = <b>${formatDouble(roundYears, 0)}</b> years ${formatDouble(roundRemainder, 1)} months<br>
+                &nbsp;&nbsp;&nbsp; = ${formatDouble(roundMonth, 1)} months<br>
+                &nbsp;&nbsp;&nbsp; = ${formatDouble(roundWeeks, 1)} weeks<br>
+                &nbsp;&nbsp;&nbsp; = ${formatDouble(roundDays, 0)} days</p>
+                <p>It's ${formatDouble(monthsToNextBirthday, 1)} months to their next birthday.
+                ${presentMessage}</p>
+            `;
+            
+            pickerDialog.style.display = 'none';
+        });
+        
+        // About dialog functions
+        aboutButton.addEventListener('click', () => {
+            aboutDialog.style.display = 'block';
+        });
+        
+        closeAbout.addEventListener('click', () => {
+            aboutDialog.style.display = 'none';
+        });
+        
+        // Close dialogs when clicking on X or outside
+        document.querySelectorAll('.close').forEach(closeButton => {
+            closeButton.addEventListener('click', function() {
+                this.closest('.dialog').style.display = 'none';
+            });
+        });
+        
+        window.addEventListener('click', (event) => {
+            if (event.target === pickerDialog) {
+                pickerDialog.style.display = 'none';
+            }
+            if (event.target === aboutDialog) {
+                aboutDialog.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
