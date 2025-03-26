@@ -292,6 +292,12 @@
         setDate.addEventListener('click', () => {
             // Get the date string from the input and create a proper Date object
             const dateString = datePicker.value; // Format: YYYY-MM-DD
+            if (!dateString) {
+                ageResults.style.display = 'none';
+                pickerDialog.style.display = 'none';
+                return;
+            }
+
             const [year, month, day] = dateString.split('-').map(num => parseInt(num, 10));
             
             // Create date with correct values (month is 0-indexed in JavaScript)
