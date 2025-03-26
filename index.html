@@ -1,32 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark-mode">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Age Calculator</title>
     <style>
+        :root {
+            --bg-primary: #f9f9f9;
+            --bg-secondary: white;
+            --text-primary: #333;
+            --text-secondary: black;
+            --accent-color: #4CAF50;
+            --accent-hover: #45a049;
+            --shadow-color: rgba(0,0,0,0.1);
+            --dialog-bg: rgba(0,0,0,0.4);
+        }
+
+        :root.dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #ffffff;
+            --accent-color: #4CAF50;
+            --accent-hover: #45a049;
+            --shadow-color: rgba(255,255,255,0.1);
+            --dialog-bg: rgba(0,0,0,0.7);
+        }
+
         body {
             font-family: Arial, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
         }
         
         .container {
-            background-color: #f9f9f9;
+            background-color: var(--bg-secondary);
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px var(--shadow-color);
         }
         
         h1 {
             text-align: center;
-            color: #333;
+            color: var(--text-primary);
         }
         
         button {
-            background-color: #4CAF50;
+            background-color: var(--accent-color);
             color: white;
             padding: 10px 15px;
             border: none;
@@ -38,15 +63,17 @@
         }
         
         button:hover {
-            background-color: #45a049;
+            background-color: var(--accent-hover);
         }
         
         #ageResults {
-            background-color: white;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
             padding: 15px;
             border-radius: 5px;
-            border-left: 5px solid #4CAF50;
+            border-left: 5px solid var(--accent-color);
             margin-top: 20px;
+            display: none; /* Hide by default */
         }
         
         .dialog {
@@ -57,14 +84,15 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.4);
+            background-color: var(--dialog-bg);
         }
         
         .dialog-content {
-            background-color: #fefefe;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
             margin: 15% auto;
             padding: 20px;
-            border: 1px solid #888;
+            border: 1px solid var(--accent-color);
             width: 80%;
             max-width: 400px;
             border-radius: 5px;
@@ -72,7 +100,7 @@
         }
         
         .close {
-            color: #aaa;
+            color: var(--text-secondary);
             float: right;
             font-size: 28px;
             font-weight: bold;
@@ -80,12 +108,12 @@
         }
         
         .close:hover {
-            color: black;
+            color: var(--accent-color);
         }
         
         .dialog-title {
             margin-top: 0;
-            color: #333;
+            color: var(--text-primary);
         }
         
         input[type="date"] {
@@ -94,10 +122,13 @@
             margin-bottom: 20px;
             font-size: 16px;
             box-sizing: border-box;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--text-primary);
         }
         
         a {
-            color: #4CAF50;
+            color: var(--accent-color);
             text-decoration: none;
         }
         
@@ -112,7 +143,7 @@
         .menu button {
             background: none;
             border: none;
-            color: #4CAF50;
+            color: var(--accent-color);
             cursor: pointer;
             margin: 0;
             padding: 5px;
@@ -124,11 +155,16 @@
             text-decoration: underline;
             background: none;
         }
+
+        .theme-toggle {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="menu">
+            <button id="themeToggle" class="theme-toggle">🌓 Toggle Theme</button>
             <button id="aboutButton">About</button>
         </div>
         
@@ -173,6 +209,36 @@
         const setDate = document.getElementById('setDate');
         const aboutButton = document.getElementById('aboutButton');
         const closeAbout = document.getElementById('closeAbout');
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Theme management
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Initialize theme
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            
+            // Default to dark mode if no preference is saved
+            if (savedTheme === null) {
+                setTheme('dark');
+            } else {
+                setTheme(savedTheme);
+            }
+        }
+
+        // Theme toggle event listener
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
         
         // Set default date
         const today = new Date();
@@ -265,6 +331,9 @@
                 ${presentMessage}</p>
             `;
             
+            // Show the results area
+            ageResults.style.display = 'block';
+            
             pickerDialog.style.display = 'none';
         });
         
@@ -292,6 +361,9 @@
                 aboutDialog.style.display = 'none';
             }
         });
+
+        // Initialize theme on page load
+        initTheme();
     </script>
 </body>
 </html>
